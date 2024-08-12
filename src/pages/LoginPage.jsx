@@ -9,7 +9,7 @@ function Login() {
   const loginUser = (userInfo) => {
     localStorage.setItem('user', JSON.stringify(userInfo));
   };
-  const navigate = useNavigate(); // 初始化 useNavigate
+  const navigate = useNavigate();
   const handleLogin = async (e) => {
     e.preventDefault();
     console.log('Attempting to login with:', { username, password });

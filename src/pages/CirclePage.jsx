@@ -5,67 +5,6 @@ import axios from 'axios';
 import 'tailwindcss/tailwind.css';
 
 // const [user, setUser] = useState(null);
-export default function CirclePage() {
-  const navigate = useNavigate();
-  const { circleId } = useParams();
-  const [circle, setCircle] = useState(null);
-  const [posts, setPosts] = useState([]);
-
-  useEffect(() => {
-    document.body.style.background = 'none';
-
-    axios.get(`http://127.0.0.1:7001/circle/GetCircleByID/${circleId}`)
-      .then(response => {
-        setCircle(response.data.circle);
-        setPosts(response.data.posts);
-        console.log('circle:', response.data.circle);
-        console.log('posts:', response.data.posts);
-      })
-      .catch(error => {
-        console.error('Error:', error);
-      });
-  }, [circleId]);
-  if (!circle) {
-    return <div>加载中...</div>;
-  }
-  function handleCreatePost() {
-    navigate(`/PostForm/${circleId}`)
-    window.location.reload();
-  }
-
-  function handleActivityPage() {
-    navigate(`/ActivityPage/${circleId}`)
-    window.location.reload();
-  }
-  function handleBackToMainPage() {
-    navigate('/home');
-    window.location.reload();
-  }
-
-  return (
-    <div style={{ background: 'none' }}>
-      <div>
-        <h1 style={{ marginTop: '90px' }} >{circle.name}</h1>
-        <button
-          style={{ marginTop: '10px', color: 'black' }}
-          onClick={handleActivityPage}
-          className="rounded-lg w-full p-3 border"
-        >
-          查看成员活跃度
-        </button>
-        {posts.map(post => (
-          <PostCard key={post.id} post={post} />
-        ))}
-        <button onClick={handleCreatePost}>
-          发布帖子
-        </button>
-        <button onClick={handleBackToMainPage} style={{ marginLeft: '50px' }}>
-          返回主页
-        </button>
-      </div>
-    </div>
-  );
-}
 const PostCard = ({ post }) => {
   const [comments, setComments] = useState([]);
   const [newCommentText, setNewCommentText] = useState('');
@@ -122,6 +61,23 @@ const PostCard = ({ post }) => {
           <img key={index} src={image} />
         ))}
       </div>
+      <div className="flex mt-3 items-center" style={{ color: 'black' }}>
+        <input
+          type="text"
+          value={newCommentText}
+          onChange={e => setNewCommentText(e.target.value)}
+          className="w-full border  p-2 rounded-lg"
+          placeholder="输入评论..."
+        />
+        <button style={{ color: 'black', marginLeft: '10px' }}
+          onClick={() => {
+            addComment(post.id, newCommentText);
+            setNewCommentText('');
+          }}
+          className="rounded-lg w-20"
+        >   发布
+        </button>
+      </div>
       <div>
         <h5 className="text-lg font-bold">评论</h5>
         {comments.map(comment => (
@@ -129,27 +85,73 @@ const PostCard = ({ post }) => {
             <p style={{ fontSize: '14px' }}>{comment.writer}: {comment.text}</p>
           </div>
         ))}
-        <div className="flex mt-3 items-center" style={{ color: 'black' }}>
-          <input
-            type="text"
-            value={newCommentText}
-            onChange={e => setNewCommentText(e.target.value)}
-            className="w-full border  p-3 rounded-lg"
-            placeholder="输入评论..."
-          />
-          <button style={{ color: 'black', marginLeft: '10px' }}
-            onClick={() => {
-              addComment(post.id, newCommentText);
-              setNewCommentText('');
-            }}
-            className="rounded-lg w-20"
-          >   发布
-          </button>
-        </div>
+
       </div>
     </div>
   );
 };
+export default function CirclePage() {
+  const navigate = useNavigate();
+  const { circleId } = useParams();
+  const [circle, setCircle] = useState(null);
+  const [posts, setPosts] = useState([]);
+
+  useEffect(() => {
+    document.body.style.background = 'none';
+
+    axios.get(`http://127.0.0.1:7001/circle/GetCircleByID/${circleId}`)
+      .then(response => {
+        setCircle(response.data.circle);
+        setPosts(response.data.posts);
+        console.log('circle:', response.data.circle);
+        console.log('posts:', response.data.posts);
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+  }, [circleId]);
+  if (!circle) {
+    return <div>加载中...</div>;
+  }
+  function handleCreatePost() {
+    navigate(`/PostForm/${circleId}`)
+    window.location.reload();
+  }
+
+  function handleActivityPage() {
+    navigate(`/ActivityPage/${circleId}`)
+    window.location.reload();
+  }
+  function handleBackToMainPage() {
+    navigate('/home');
+    window.location.reload();
+  }
+
+  return (
+    <div style={{ background: 'none', maxHeight: '100vh', overflowY: 'auto' }}>
+      <div>
+        <h1 style={{ marginTop: '20px', position: 'sticky' }} >{circle.name}</h1>
+        <button
+          style={{ marginTop: '10px', color: 'black', position: 'sticky' }}
+          onClick={handleActivityPage}
+          className="rounded-lg w-full p-3 border"
+        >
+          查看成员活跃度
+        </button>
+        {posts.map(post => (
+          <PostCard key={post.id} post={post} />
+        ))}
+        <button onClick={handleCreatePost}>
+          创建帖子
+        </button>
+        <button onClick={handleBackToMainPage} style={{ marginLeft: '50px' }}>
+          返回主页
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function followCircle(circleId) {
   const userId = localStorage.getItem('userId');
   if (!userId) {
